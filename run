@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+import math
+import time
+import numpy as np
+import sys
+import rrc_simulation
+
+AMPLITUDE = math.pi/6.0
+FREQUENCY = 4.0
+NB_DOFS = 9
+
+class SinAction:
+
+    def __init__(self,start,amplitude,frequency):
+        self.start = start
+        self.amplitude = amplitude
+        self.frequency = frequency
+        self.t =None
+        
+    def get(self):
+        current = time.time()
+        if self.t is None:
+            self.t=current
+        delta = current-self.t
+        return self.start+self.amplitude*math.sin(self.frequency*delta/math.pi)
+
+    
+def run():
+
+    # init
+    robot = robot_fingers.TriFingerPlatformFrontend()
+    t = robot.append_desired_action([0]*NB_DOFS)
+    positions = robot.get_robot_observation(t).position
+    positions = [SinAction(p,AMPLITUDE,FREQUENCY)
+                 for p in positions]
+    
+    while True:
+        
+        t = robot.append_desired_action([p.get() for p in positions])
+        _ = robot.get_robot_observation(t)
+        
+
+if __name__ == "__main__":
+    run()
