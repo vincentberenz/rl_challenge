@@ -4,7 +4,8 @@ import math
 import time
 import numpy as np
 import sys
-import rrc_simulation
+import robot_fingers
+import robot_interfaces
 
 AMPLITUDE = math.pi/6.0
 FREQUENCY = 4.0
@@ -30,16 +31,20 @@ def run():
 
     # init
     robot = robot_fingers.TriFingerPlatformFrontend()
-    t = robot.append_desired_action([0]*NB_DOFS)
-    positions = robot.get_robot_observation(t).position
-    positions = [SinAction(p,AMPLITUDE,FREQUENCY)
-                 for p in positions]
+    position = [0.0]*NB_DOFS
+    action = robot_interfaces.trifinger.Action(position=position)
+    t = robot.append_desired_action(action)
+    position = robot.get_robot_observation(t).position
+    position = [SinAction(p,AMPLITUDE,FREQUENCY)
+                 for p in position]
     
     while True:
-        
-        t = robot.append_desired_action([p.get() for p in positions])
-        _ = robot.get_robot_observation(t)
-        
 
+        position_ = [p.get() for p in position]
+        action = robot_interfaces.trifinger.Action(position=position_)
+        t = robot.append_desired_action(action)
+        _ = robot.get_robot_observation(t)
+
+        
 if __name__ == "__main__":
     run()
