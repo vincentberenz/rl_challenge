@@ -2,5 +2,8 @@
 
 pwd
 ls -a
+cd /userhome
+pwd
+ls -a
 cat foot.txt
 
