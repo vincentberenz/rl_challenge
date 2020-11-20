@@ -1,5 +1,6 @@
 #! /bin/bash
 
-ls
+pwd
+ls -a
 cat foot.txt
 
