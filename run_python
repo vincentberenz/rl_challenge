@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+import math
+import time
+import numpy as np
+import sys
+import robot_fingers
+import robot_interfaces
+
+AMPLITUDE = math.pi/6.0
+FREQUENCY = 4.0
+NB_DOFS = 9
+
+class SinAction:
+
+    def __init__(self,start,amplitude,frequency):
+        self.start = start
+        self.amplitude = amplitude
+        self.frequency = frequency
+        self.t =None
+        
+    def get(self):
+        current = time.time()
+        if self.t is None:
+            self.t=current
+        delta = current-self.t
+        return self.start+self.amplitude*math.sin(self.frequency*delta/math.pi)
+
+    
+def run():
+
+    # init
+    robot = robot_fingers.TriFingerPlatformFrontend()
+    position = [0.0]*NB_DOFS
+    action = robot_interfaces.trifinger.Action(position=position)
+    t = robot.append_desired_action(action)
+    position = robot.get_robot_observation(t).position
+    position = [SinAction(p,AMPLITUDE,FREQUENCY)
+                 for p in position]
+    
+    while True:
+
+        position_ = [p.get() for p in position]
+        action = robot_interfaces.trifinger.Action(position=position_)
+        t = robot.append_desired_action(action)
+        _ = robot.get_robot_observation(t)
+
+        
+if __name__ == "__main__":
+    run()
